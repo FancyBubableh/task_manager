@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task manager</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css">
+</head>
+<body>
+    <div class="app">
+        <div class="content">
+            <input type="text" id="taskInput" style="display: none;">
+            <div class="content__header contentHeader">
+                <button class="contentHeader__arrowLeft arrow arrow_left fa fa-chevron-left" id="toLeft"></button>
+                <button class="contentHeader__arrowRight arrow arrow_right fa fa-chevron-right" id ="toRight"></button>
+            </div>
+            <ul class="content__taskList" id="taskList">
+                <li class="content__dateRow dateRow">
+                    <div class="content__dateElement content__dateElement_empty"></div>
+                    <div class="content__dateElement">Понедельник</div>
+                    <div class="content__dateElement">Вторник</div>
+                    <div class="content__dateElement">Среда</div>
+                    <div class="content__dateElement">Четверг</div>
+                    <div class="content__dateElement">Пятница</div>
+                    <div class="content__dateElement">Суббота</div>
+                    <div class="content__dateElement">Воскресенье</div>
+                </li>
+            </ul>
+        </div>
+        <div class="backlog">
+            <div class="backlog__title title">Backlog</div>
+            <div class="backlog__content"></div>
+        </div>
+    </div>
+
+    <script src="./script.js"></script>
+</body>
+</html>
