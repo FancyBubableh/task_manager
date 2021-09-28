@@ -9,11 +9,14 @@
 </head>
 <body>
     <div class="app">
+        <div class="loader" style="display: none;"><i class="fas fa-spinner fa-pulse" aria-hidden="true"></i></div>
         <div class="content">
-            <input type="text" id="taskInput" style="display: none;">
+            <!-- <input type="text" id="taskInput" style="display: none;"> -->
             <div class="content__header contentHeader">
                 <button class="contentHeader__arrowLeft arrow arrow_left fa fa-chevron-left" id="toLeft"></button>
                 <button class="contentHeader__arrowRight arrow arrow_right fa fa-chevron-right" id ="toRight"></button>
+
+                <div class="dateContainer"></div>
             </div>
             <ul class="content__taskList" id="taskList">
                 <li class="content__dateRow dateRow">

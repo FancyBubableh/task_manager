@@ -10,14 +10,40 @@ body {
     font-weight: normal;
     line-height: 1;
 }
+
 .app {
     display: flex;
+    flex-wrap: wrap;
+    background: #f1f1f1;
+    padding-bottom: 10px;
 }
-
+.loader {
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    flex: 100%;
+    height: 400px;
+    font-size: 50px;
+}
+.loader .fas {
+    color: grey;
+}
 .content {
     padding: 10px;
-    background: #f1f1f1;
     flex: 75%;
+}
+.content__header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.contentHeader__arrowRight, .contentHeader__arrowLeft {
+    margin-right: 10px;
+}
+.dateContainer {
+    display: flex;
+    align-items: center;
+    gap: 0 10px;
 }
 .content__taskItem {
     cursor: pointer;
@@ -34,25 +60,12 @@ body {
     line-height: 40px;
     position: relative;
 }
-
 .content__taskItem_user {
     background: #dbf1cf;
 }
-
 .content__taskItem:first-child {
     border-left: 1px solid black;
 }
-
-/* .taskItem__removeButton {
-    position: absolute;
-    background: white;
-    border-radius: 100%;
-    width: 30px;
-    height: 30px;
-    right: 0;
-    top: 0;
-} */
-
 .content__taskItem:hover:not(:empty):not(.content__taskItem_user):after {
     content: attr(data-title);
     position: absolute;
@@ -65,11 +78,9 @@ body {
     width: 160px;
     line-height: 20px;
 }
-
 .dateRow {
     display: flex;
 }
-
 .content__dateElement {
     flex: calc(100% / 8);
     max-width: calc(100% / 8);
@@ -81,27 +92,22 @@ body {
     border-bottom: 1px solid black;
     border-top: 1px solid black;
 }
-
 .content__dateElement_empty {
     background: white;
     border-left: 1px solid black;
 }
-
 .backlog {
     flex: 25%;
     background: white;
     border: 1px solid black;
     padding: 10px;
 }
-
 .backlog__title {
     margin-bottom: 10px;
 }
-
 .row {
     display: flex;
 }
-
 .arrow {
     width: 32px;
     height: 32px;
@@ -115,13 +121,35 @@ body {
     color: #34d5d5;
     cursor: pointer;
 }
-
 .title {
     font-size: 20px;
     font-weight: 600;
     letter-spacing: 1px;
 }
-
 .title_white {
     color: white;
+}
+
+@media (max-width: 1199px) {
+    .app {
+        min-width: 900px;
+    }
+    .content, .backlog {
+        flex: 100%;
+    }
+    .backlog {
+        margin: 0 10px;
+    }
+    body {
+        font-size: 14px;
+    }
+    .backlog__title {
+        text-align: center;
+    }
+}
+
+@media (max-width: 767px) {
+    .backlog {
+        display: none !important;
+    }
 }

@@ -1,11 +1,58 @@
 const taskList = document.getElementById('taskList');
 const backlogContainer = document.querySelector('.backlog__content');
 const Mask = 'task_';
+const dateContainer = document.querySelector('.dateContainer');
 let dataCounter = 0;
 const secondsInWeek = 604800;
+let isLoading = true;
+
+function showLoader(loading) {
+    if(loading) {
+        document.querySelector('.content').style.display = 'none';
+        document.querySelector('.backlog').style.display = 'none';
+        document.querySelector('.loader').style.display = 'flex';
+        document.querySelectorAll('.arrow').forEach(el => {
+            el.setAttribute('disabled', 'disabled');
+        });
+    } else {
+        document.querySelector('.content').style.display = 'block';
+        document.querySelector('.backlog').style.display = 'block';
+        document.querySelector('.loader').style.display = 'none';
+        document.querySelectorAll('.arrow').forEach(el => {
+            el.removeAttribute('disabled');
+        });
+    }
+}
+
+function calcDate(date) {
+    let calculatedDate;
+    
+    if(dataCounter >= 0) {
+        calculatedDate = dateToTimestamp(date) + (dataCounter * secondsInWeek)
+        console.log(dataCounter, secondsInWeek, dateToTimestamp(date))
+        return toDate(calculatedDate)
+    } else {
+        calculatedDate = dateToTimestamp(date) - (dataCounter * secondsInWeek)
+        return toDate(calculatedDate)
+    }
+}
+
+function createFromToDates() {
+    document.querySelectorAll('.dateContainer__date').forEach(el => el.remove());
+    let fromDate = document.createElement('div');
+    fromDate.classList.add('dateContainer__date');
+    fromDate.innerText = `${calcDate('2021-09-27')} —`;
+
+    let toDate = document.createElement('div');
+    toDate.classList.add('dateContainer__date');
+    toDate.innerText = calcDate('2021-10-03');
+
+    dateContainer.append(fromDate, toDate);
+}
 
 async function createTable(counter) {
     try {
+        showLoader(true);
         const responseUsers = await fetch('https://varankin_dev.elma365.ru/api/extensions/2a38760e-083a-4dd0-aebc-78b570bfd3c7/script/users', {
             method: 'GET',
         });
@@ -15,21 +62,12 @@ async function createTable(counter) {
         const resUsers = await responseUsers.json();
         const resTasks = await responseTasks.json();
         let rowElement;
+        createFromToDates();
 
         resUsers.forEach((user, index) => {
             rowElement = document.createElement("div");
             rowElement.classList.add('content__dateRow', 'row', 'row-for-remove');
             rowElement.setAttribute('data-rowid', user.id);
-            function calcDate(date) {
-                let calculatedDate;
-                if(dataCounter >= 0) {
-                    calculatedDate = dateToTimestamp(date) + (dataCounter * secondsInWeek)
-                    return toDate(calculatedDate)
-                } else {
-                    calculatedDate = dateToTimestamp(date) - (dataCounter * secondsInWeek)
-                    return toDate(calculatedDate)
-                }
-            }
             
             rowElement.innerHTML = `
                 <div class='content__taskItem content__taskItem_user taskItem' data-itemid='${user.id}'
@@ -106,13 +144,18 @@ async function createTable(counter) {
                 backlogContainer.append(elNotWork)
             }
         })
+        isLoading = false;
+        showLoader(false);
     } catch (error) {
+        showLoader(true);
+        isLoading = true;
         console.error(error);
     }
 }
 createTable(dataCounter);
 
 function cleanTable() {
+    isLoading = true;
     document.querySelectorAll('.row-for-remove').forEach(el => {
         el.remove();
     });
@@ -138,14 +181,19 @@ function onDragStart(event) {
 
 function onDragOver(event) {
     event.preventDefault();
+    if(event.stopPropagation) { event.stopPropagation(); }
 }
 
 function onDrop(event) {
+    event.preventDefault();
     const id = event.dataTransfer.getData('text');
     const draggableElement = document.getElementById(id);
     let dropzone = event.target;
     if(!event.target.classList.contains('content__taskItem_user')) {
         dropzone.append(draggableElement);
+        dropzone.setAttribute('data-title', 
+            `Дата начала: ${dropzone.dataset.colid}
+            Дата окончания: ${draggableElement.dataset.taskenddate}`);
         
         let obj = {
             id: `assignedTask_1`,
@@ -157,29 +205,44 @@ function onDrop(event) {
         localStorage.setItem('assignedTask_1', JSON.stringify(obj));
         localStorage.setItem('taskAssigned', true);
     } else {
-        dropzone = document.querySelector(`[data-rowid="${event.target.dataset.itemid}"][data-colid="${draggableElement.dataset.colid}"]`);
-        dropzone.setAttribute('data-title', 
-        `Дата начала: ${draggableElement.dataset.colid}
-        Дата окончания: ${draggableElement.dataset.taskenddate}`);
-        dropzone.append(draggableElement);
-        let obj = {
-            id: `assignedTask_1`,
-            subject: event.currentTarget.innerText,
-            columnId: draggableElement.dataset.colid,
-            userId: event.target.dataset.itemid
-        };
-
-        localStorage.setItem('assignedTask_1', JSON.stringify(obj));
-        localStorage.setItem('taskAssigned', true);
+        dropzone = document.querySelector(`[data-rowid='${event.target.dataset.itemid}'][data-colid='${draggableElement.dataset.colid}']`);
+        if(dropzone == null) {
+            let obj = {
+                id: `assignedTask_1`,
+                subject: event.currentTarget.innerText,
+                columnId: draggableElement.dataset.colid,
+                userId: event.target.dataset.itemid
+            };
+            
+            draggableElement.remove();
+            localStorage.setItem('assignedTask_1', JSON.stringify(obj));
+            localStorage.setItem('taskAssigned', true);
+        } else {
+            console.log(dropzone, draggableElement.dataset.colid, draggableElement.dataset.taskenddate);
+            dropzone.setAttribute('data-title', 
+            `Дата начала: ${draggableElement.dataset.colid}
+            Дата окончания: ${draggableElement.dataset.taskenddate}`);
+            dropzone.append(draggableElement);
+            let obj = {
+                id: `assignedTask_1`,
+                subject: event.currentTarget.innerText,
+                columnId: draggableElement.dataset.colid,
+                userId: event.target.dataset.itemid
+            };
+    
+            localStorage.setItem('assignedTask_1', JSON.stringify(obj));
+            localStorage.setItem('taskAssigned', true);
+        }
+        
     }
-    event
-        .dataTransfer
-        .clearData();
+    // event
+    //     .dataTransfer
+    //     .clearData();
 }
 
 function dateToTimestamp(date) {
-    let formatDate = String(date).replace(/-/g, '.');
-    return Date.parse(`${formatDate}`)/1000;
+    // let formatDate = date.replace(/-/g, '.');
+    return Date.parse(`${date}`) / 1000;
 }
 
 function toDate(UNIX_timestamp){
